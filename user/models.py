@@ -1,31 +1,47 @@
 import uuid
 from flask import session
-from src.common.database import Database
-from src.models.blog import Blog
+from utils.commons import utc_now_timestamp as now
+from utils.database import Database
+
+
+# user = User(username='mdrahali', password='123', email='mdr.ga99@gmail.com', first_name='Mohamed', last_name='El Rahali', bio='bio ...')
 
 
 class User(object):
 
-    def __init__(self,email,password,_id,id=None):
-        self.email = email
+    def __init__(self, username, password, email, first_name, last_name, bio, createdAt=None, _id=None):
+        self.username = username
         self.password = password
-        self.id = id if id else uuid.uuid4().hex
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+        self.createdAt = createdAt if createdAt else now()
+        self.bio = bio
+        self.id = _id if _id else uuid.uuid4().hex
+        self.meta = User.create_index({"username": 1, "email": 1, "createdAt": -1})
 
     @classmethod
-    def getByEmail(cls,email):
-        user = Database.find_one('users',{'email':email})
+    def create_index(cls, indexes):
+        return [
+            (index, order)
+            for index, order in indexes.items()
+        ]
+
+    @classmethod
+    def getByEmail(cls, email):
+        user = Database.find_one('users', {'email': email})
         if user is not None:
             return cls(**user)
 
     @classmethod
-    def getById(cls,id):
+    def getById(cls, id):
         user = Database.find_one('users', {'id': id})
         if user is not None:
             return cls(**user)
 
     @staticmethod
-    def valid_login(email,password):
-        #check whether a user's email matches the password that they sent us
+    def valid_login(email, password):
+        # check whether a user's email matches the password that they sent us
         user = User.getByEmail(email)
         if user is not None:
             return user.password == password
@@ -33,45 +49,35 @@ class User(object):
 
     @staticmethod
     def login(user_email):
-        #valid_login() has already been called
+        # valid_login() has already been called
         session['email'] = user_email
-
 
     @staticmethod
     def logout(user_email):
         session['email'] = None
 
     @classmethod
-    def register(cls,email,password):
-        user  = cls.getByEmail(email)
+    def register(cls, email, password):
+        user = cls.getByEmail(email)
         if user is None:
-            new_user = cls(email,password)
+            new_user = cls(email, password)
             new_user.save_database()
             session['email'] = email
             return True
         else:
             return False
 
-
-    def getBlogs(self):
-        return Blog.getBlogsByAuthorId(self.id)
-
-    def new_blog(self,title,description):
-        blog = Blog(author=self.email,title=title,description=description,author_id=self.id)
-        blog.save_database()
-
-    @staticmethod
-    def new_post(blog_id,title,content):
-        blog = Blog.getOneBlog(blog_id)
-        blog.new_post(title,content)
-
-
     def save_database(self):
-        Database.insert('users', self.json())
+        Database.insert('users', self.json(), self.meta)
 
     def json(self):
         return {
             "email": self.email,
+            "username": self.username,
             "password": self.password,
-            "id": self.id
+            "createdAt": self.createdAt,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "biography": self.bio,
+            "_id": self.id,
         }

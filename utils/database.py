@@ -1,5 +1,5 @@
 import os
-from typing import Dict
+from typing import Dict, List
 import pymongo
 
 
@@ -8,8 +8,10 @@ class Database:
     DATABASE = pymongo.MongoClient(URI).get_default_database()
 
     @staticmethod
-    def insert(collection: str, data: Dict) -> None:
+    def insert(collection: str, data: Dict, meta: List) -> None:
         Database.DATABASE[collection].insert(data)
+        for index in meta:
+            Database.DATABASE[collection].create_index([index])
 
     @staticmethod
     def find(collection: str, query: Dict) -> pymongo.cursor:
