@@ -1,0 +1,48 @@
+#friends-toolbar {
+    height: 60px;
+    margin-right: 5px;
+}
+
+.profile-fullname {
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+
+.profile-username {
+    margin-top: 2px;
+    margin-bottom: 4px;   
+}
+
+.friend-grid-user {
+    margin-bottom: 15px;
+    height: 215px;
+}
+
+.profile-friends-pagination {
+    margin-top: 15px;
+}
+
+.media-user {
+    font-size: large;
+}
+
+.media-footer {
+    font-size: 0.9em;
+    color: #aaa;
+}
+
+.media-images {
+    margin: 10px 0 7px;
+}
+
+.feed-comment {
+    margin-top: 15px;
+}
+
+.feed-message-comments {
+    margin-top: 10px;
+}
+
+.media-footer-likes {
+    margin-top: 5px;
+}

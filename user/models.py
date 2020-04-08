@@ -9,14 +9,13 @@ from utils.database import Database
 
 class User(object):
 
-    def __init__(self, username, password, email, first_name, last_name, bio, createdAt=None, _id=None):
+    def __init__(self, username, password, email, first_name, last_name, createdAt=None, _id=None):
         self.username = username
         self.password = password
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
         self.createdAt = createdAt if createdAt else now()
-        self.bio = bio
         self.id = _id if _id else uuid.uuid4().hex
         self.meta = User.create_index({"username": 1, "email": 1, "createdAt": -1})
 
@@ -30,6 +29,12 @@ class User(object):
     @classmethod
     def getByEmail(cls, email):
         user = Database.find_one('users', {'email': email})
+        if user is not None:
+            return cls(**user)
+
+    @classmethod
+    def getByName(cls, username):
+        user = Database.find_one('users', {'username': username})
         if user is not None:
             return cls(**user)
 
@@ -78,6 +83,5 @@ class User(object):
             "createdAt": self.createdAt,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "biography": self.bio,
             "_id": self.id,
         }
