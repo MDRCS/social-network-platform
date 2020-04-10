@@ -5,9 +5,6 @@ from wtforms.validators import ValidationError
 from user.models import User
 
 
-
-
-
 class RegisterForm(Form):
     first_name = StringField('First Name', [validators.DataRequired()])
     last_name = StringField('Last Name', [validators.DataRequired()])

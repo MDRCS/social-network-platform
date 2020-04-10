@@ -11,6 +11,10 @@ SOCIAL NETWORK PLATFORM
 1- source ./venv/bin/activate
 2- (venv) MACBOOK-ELRAHALI:social-network-platform mdrahali$ python manage.py shell
 
++ running tests:
+
+-> python tests.py
+
 
 + Mongodb Queries :
 
