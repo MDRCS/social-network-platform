@@ -2,6 +2,9 @@
 SOCIAL NETWORK PLATFORM
 
 + Launch The App :
+-> export environment='testing'
+=> echo $environment # check
+
 -> python manage.py runserver
 
 + database ops:

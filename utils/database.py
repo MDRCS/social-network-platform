@@ -2,9 +2,10 @@ import os
 from typing import Dict, List
 import pymongo
 
+# 'social-network'
 
 class Database:
-    URI = "mongodb://127.0.0.1:27017/social-network"
+    URI = os.environ.get('DATABASE_URI')
     DATABASE = pymongo.MongoClient(URI).get_default_database()
 
     @staticmethod
