@@ -2,6 +2,7 @@ import os
 from typing import Dict, List
 import pymongo
 
+
 # 'social-network'
 
 class Database:
@@ -29,7 +30,8 @@ class Database:
 
     @staticmethod
     def update(collection: str, query: Dict, data: Dict) -> None:
-        Database.DATABASE[collection].update(query, data, upsert=True)
+        Database.DATABASE[collection].update(query, data)
+        Database.DATABASE[collection].reindex()
 
     @staticmethod
     def remove(collection: str, query: Dict) -> Dict:

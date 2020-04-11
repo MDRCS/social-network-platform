@@ -9,14 +9,15 @@ from utils.database import Database
 
 class User(object):
 
-    def __init__(self, username, password, email, first_name, last_name, createdAt=None, _id=None):
-        self.username = username
+    def __init__(self, username, password, email, first_name, last_name, bio, createdAt=None, _id=None):
+        self.username = username.lower()
         self.password = password
-        self.email = email
+        self.email = email.lower()
         self.first_name = first_name
         self.last_name = last_name
         self.createdAt = createdAt if createdAt else now()
         self.id = _id if _id else uuid.uuid4().hex
+        self.bio = bio
         self.meta = User.create_index({"username": 1, "email": 1, "createdAt": -1})
 
     @classmethod
@@ -58,7 +59,7 @@ class User(object):
         session['email'] = user_email
 
     @staticmethod
-    def logout(user_email):
+    def logout():
         session['email'] = None
 
     @classmethod
@@ -75,6 +76,9 @@ class User(object):
     def save_database(self):
         Database.insert('users', self.json(), self.meta)
 
+    def update_record(self):
+        Database.update('users', {'_id': self.id}, self.json())
+
     def json(self):
         return {
             "email": self.email,
@@ -83,5 +87,6 @@ class User(object):
             "createdAt": self.createdAt,
             "first_name": self.first_name,
             "last_name": self.last_name,
+            "bio": self.bio,
             "_id": self.id,
         }

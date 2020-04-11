@@ -1,0 +1,2 @@
+sudo rm /usr/local/var/mongodb/mongod.lock
+mongod -f mongod.conf
