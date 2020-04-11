@@ -77,7 +77,7 @@ class User(object):
         Database.insert('users', self.json(), self.meta)
 
     def update_record(self):
-        Database.update('users', {'_id': self.id}, self.json())
+        Database.update('users', {'_id': self.id}, {"$set": self.json()})
 
     def json(self):
         return {

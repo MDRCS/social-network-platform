@@ -39,16 +39,14 @@ class UserTest(unittest.TestCase):
         assert Database.count_record('users', {'username': "mdrahali"}) == 1
         """
             Invalid Username
-            Invalid
         """
         invalid_user = self.getUser()
         invalid_user['username'] = "wrong wrong"
         response = self.app.post("/register", data=invalid_user, follow_redirects=True)
-        print(str(response.data))
-        # assert "Invalid Username" in str(response.data)
+
+        assert "Username must contain only letters numbers or underscore" in str(response.data)
 
     def test_login_user(self):
-
         self.app.post("/register", data=self.getUser(), follow_redirects=True)
         response = self.app.post('/login', data=dict(
             username=self.getUser()['username'],
@@ -60,3 +58,45 @@ class UserTest(unittest.TestCase):
             assert response.status_code == 200
             assert session['username'] == self.getUser()['username']
 
+    def test_edit_profile(self):
+        user = self.getUser()
+        self.app.post("/register", data=self.getUser(), follow_redirects=True)
+
+        # Check `Edit profile` feature
+        _ = self.app.post('/login', data=dict(
+            username=user['username'],
+            password=user['password']
+        ))
+
+        response = self.app.get('/edit')
+        assert response.status_code == 200
+
+        user['first_name'] = "Test First Name"
+
+        # Edit Profile
+        response = self.app.post('/edit', data=user)
+        assert "Your info has been updated succefully ..!" in str(response.data)
+        assert "Test First Name" == User.getByName(user['username']).first_name
+
+        user = self.getUser()
+        user['username'] = "kaka123"
+        user['email'] = "ex@example.com"
+        self.app.post("/register", data=user, follow_redirects=True)
+
+        _ = self.app.post('/login', data=dict(
+            username=user['username'],
+            password=user['password']
+        ))
+
+        # use a username already used
+        user['username'] = 'mdrahali'
+        response = self.app.post('/edit', data=user)
+
+        assert "This username is already in use." in str(response.data)
+
+        # try to save same email
+        # use a username already used
+        user['email'] = 'go@gmail.com'
+        response = self.app.post('/edit', data=user)
+
+        assert "This email is already in use." in str(response.data)

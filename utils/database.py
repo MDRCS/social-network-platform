@@ -12,7 +12,7 @@ class Database:
 
     @staticmethod
     def insert(collection: str, data: Dict, meta: List) -> None:
-        Database.DATABASE[collection].insert(data)
+        Database.DATABASE[collection].insert_one(data)
         for index in meta:
             Database.DATABASE[collection].create_index([index])
 
@@ -30,7 +30,7 @@ class Database:
 
     @staticmethod
     def update(collection: str, query: Dict, data: Dict) -> None:
-        Database.DATABASE[collection].update(query, data)
+        Database.DATABASE[collection].update_one(query, data)
         Database.DATABASE[collection].reindex()
 
     @staticmethod
