@@ -14,6 +14,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     MONGODB_NAME = os.environ.get('MONGODB_DEV_NAME')
+    HOSTNAME = "0.0.0.0:5000"
 
 
 class TestingConfig(Config):

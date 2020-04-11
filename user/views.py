@@ -1,13 +1,11 @@
 from flask import Blueprint, render_template, session, redirect, url_for, abort
 import bcrypt
+import uuid
 from user.forms import RegisterForm, LoginForm, EditForm
 from user.models import User
+from utils.commons import email
 
 user_blueprint = Blueprint('user_blueprint', __name__)
-
-@user_blueprint.route('/ed')
-def ed():
-    return render_template('user/edit.html')
 
 
 @user_blueprint.route('/')
@@ -58,6 +56,7 @@ def edit():
     else:
         abort(404)
 
+
 @user_blueprint.route('/change_password')
 def change_password():
     return "You hurt me ! .."
@@ -80,11 +79,13 @@ def login():
     error = None
     if form.validate_on_submit():
         user = User.getByName(form.username.data)
-
-        if user and bcrypt.hashpw(form.password.data, user.password) == user.password:
-            session['username'] = user.username
-            return redirect(url_for('.profile', username=user.username))
-        error = "Incorrect Credentials"
+        if user.email_confirmation:
+            if user and bcrypt.hashpw(form.password.data, user.password) == user.password:
+                session['username'] = user.username
+                return redirect(url_for('.profile', username=user.username))
+            error = "Incorrect Credentials"
+        else:
+            error = "Check you email to complete your registration"
     return render_template("user/login.html", form=form, error=error)
 
 
@@ -93,13 +94,36 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         salt = bcrypt.gensalt()
+        code = str(uuid.uuid4().hex)
         hashed_password = bcrypt.hashpw(form.password.data, salt)
         user = User(username=form.username.data,
                     password=hashed_password,
                     email=form.email.data,
                     first_name=form.first_name.data,
                     last_name=form.last_name.data,
-                    bio=form.bio.data)
+                    bio=form.bio.data,
+                    change_configuration={
+                        "new_email": form.email.data.lower(),
+                        "confirmation_code": code
+                    })
         user.save_database()
+        # send email
+        html_body = render_template('mail/user/register.html', user=user)
+        html_text = render_template('mail/user/register.txt', user=user)
+        email(user.email, "Welcome To Social Network Platform", html_body, html_text)
         return "User is registred Successfuly"
     return render_template('user/register.html', form=form)
+
+
+@user_blueprint.route('/confirm/<string:username>/<string:code>', methods=('GET', 'POST'))
+def confirm(username, code):
+    user = User.getByName(username)
+    if user and user.change_configuration and user.change_configuration.get("confirmation_code"):
+        if user.change_configuration.get("confirmation_code") == code:
+            user.email = user.change_configuration.get("new_email")
+            user.change_configuration = {}
+            user.email_confirmation = True
+            user.update_record()
+            return render_template('user/email_confirmed.html')
+    else:
+        abort(404)

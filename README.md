@@ -66,3 +66,25 @@
 
     -> db.users.find( { "username" : "mdrahali" } ).explain() # indexed search == we have an index by `username`
     -> db.users.find( "first_name" : "Mohamed" ).explain() # no indexed search
+
+##### + Amazon Configuration:
+    # Amazon simple Email Service:
+        !- mkdir ~/.aws
+        !- vi ~/.aws/credentials
+        !- add Secret Keys:
+                aws_access_key_id = AKI*******************
+                aws_secret_access_key = XMF8v*************
+        !- vi ~/.aws/config
+                    [default]
+                    region = us-east-1
+
+
+
+
+
+##### + Tech Stack And Tools used to build the app :
+    - AMAZON Simple Email Service (Mailing Service)
+    - Flask (Web Framework)
+    - Mongodb (NoSQL Database)
+    - AMAZON S3 (Image Upload)
+    - Unittest (Unitesting)

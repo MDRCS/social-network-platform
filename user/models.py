@@ -9,7 +9,7 @@ from utils.database import Database
 
 class User(object):
 
-    def __init__(self, username, password, email, first_name, last_name, bio, createdAt=None, _id=None):
+    def __init__(self, username, password, email, first_name, last_name, bio, email_confirmation=False,change_configuration={},createdAt=None, _id=None):
         self.username = username.lower()
         self.password = password
         self.email = email.lower()
@@ -19,6 +19,8 @@ class User(object):
         self.id = _id if _id else uuid.uuid4().hex
         self.bio = bio
         self.meta = User.create_index({"username": 1, "email": 1, "createdAt": -1})
+        self.email_confirmation = email_confirmation
+        self.change_configuration = change_configuration
 
     @classmethod
     def create_index(cls, indexes):
@@ -88,5 +90,7 @@ class User(object):
             "first_name": self.first_name,
             "last_name": self.last_name,
             "bio": self.bio,
+            "email_confirmation": self.email_confirmation,
+            "change_configuration": self.change_configuration,
             "_id": self.id,
         }
