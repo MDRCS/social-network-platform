@@ -34,22 +34,39 @@ def edit():
     if user:
         form = EditForm(obj=user)
         if form.validate_on_submit():
-            if user.username != form.username.data.lower() or user.email != form.email.data.lower():
-                if user.username != form.username.data and User.getByName(form.username.data.lower()):
+            if user.username != form.username.data.lower():
+                if User.getByName(form.username.data.lower()):
                     error = "This username is already in use."
                 else:
                     session['username'] = form.username.data.lower()
                     user.username = form.username.data.lower()
 
-                if user.email != form.email.data.lower() and User.getByEmail(form.email.data.lower()):
+            if user.email != form.email.data.lower():
+                if User.getByEmail(form.email.data.lower()):
                     error = "This email is already in use."
                 else:
-                    user.email = form.email.data.lower()
+                    code = str(uuid.uuid4())
+
+                    user.change_configuration = {
+                        "new_email": form.email.data.lower(),
+                        "confirmation_code": code
+                    }
+
+                    user.email_confirmation = False
+                    message = "You will need to confirm the new email to complete this change"
+
+                    # email the user
+                    body_html = render_template('mail/user/change_email.html', user=user)
+                    body_text = render_template('mail/user/change_email.txt', user=user)
+                    email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
 
             if not error:
                 form.populate_obj(user)
                 user.update_record()
-                message = "Your info has been updated succefully ..!"
+                if message:
+                    return redirect(url_for('.logout'))
+                else:
+                    message = "Your info has been updated succefully ..!"
 
         return render_template('user/edit.html', form=form, error=error, message=message, user=user)
 
@@ -110,7 +127,7 @@ def register():
         # send email
         html_body = render_template('mail/user/register.html', user=user)
         html_text = render_template('mail/user/register.txt', user=user)
-        email(user.email, "Welcome To Social Network Platform", html_body, html_text)
+        email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
         return "User is registred Successfuly"
     return render_template('user/register.html', form=form)
 
