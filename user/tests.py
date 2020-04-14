@@ -136,13 +136,6 @@ class UserTest(unittest.TestCase):
 
         assert "This username is already in use." in str(response.data)
 
-        with self.app as c:
-            c.get('/')
-            print(session['username'])
-
-        for u in Database.find('users', {}):
-            print(u)
-
         # save same email
         # use a username already used
         user = self.getUser()
@@ -151,3 +144,19 @@ class UserTest(unittest.TestCase):
         response = self.app.post('/edit', data=user, follow_redirects=True)
 
         assert "This email is already in use." in str(response.data)
+
+    def test_get_profile(self):
+        user = self.getUser()
+        self.app.post("/register", data=user, follow_redirects=True)
+        user = User.getByName(username=self.getUser()['username'])
+        code = user.change_configuration.get('confirmation_code')
+        rv = self.app.get('/confirm/' + user.username + '/' + code)
+        assert "Your email has been confirmed" in str(rv.data)
+
+        self.app.post('/login', data=dict(
+            username=user.username,
+            password=self.getUser()['password']
+        ))
+
+        response = self.app.get('/profile/' + user.username)
+        assert "@" + user.username in str(response.data)
