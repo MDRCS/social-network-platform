@@ -9,7 +9,7 @@ from utils.database import Database
 
 class User(object):
 
-    def __init__(self, username, password, email, first_name, last_name, bio, email_confirmation=False, change_configuration={},createdAt=None, _id=None):
+    def __init__(self, username, password, email, first_name, last_name, bio, email_confirmation=False, change_configuration={}, createdAt=None, _id=None):
         self.username = username.lower()
         self.password = password
         self.email = email.lower()

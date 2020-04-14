@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, abort
 import bcrypt
+import os
 import uuid
 from user.forms import RegisterForm, LoginForm, EditForm
 from user.models import User
@@ -26,7 +27,7 @@ def profile(username):
         abort(404)
 
 
-@user_blueprint.route('/edit', methods=('POST', 'GET'))
+@user_blueprint.route('/edit', methods=['POST', 'GET'])
 def edit():
     error = None
     message = None
@@ -58,13 +59,13 @@ def edit():
                     # email the user
                     body_html = render_template('mail/user/change_email.html', user=user)
                     body_text = render_template('mail/user/change_email.txt', user=user)
-                    email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
+                    # email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
 
             if not error:
                 form.populate_obj(user)
                 user.update_record()
                 if message:
-                    return redirect(url_for('.logout'))
+                    return redirect(url_for('.logout')), 302
                 else:
                     message = "Your info has been updated succefully ..!"
 
@@ -90,7 +91,7 @@ def logout():
     return redirect(url_for('.login'))
 
 
-@user_blueprint.route('/login', methods=('GET', 'POST'))
+@user_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     error = None
@@ -99,7 +100,7 @@ def login():
         if user.email_confirmation:
             if user and bcrypt.hashpw(form.password.data, user.password) == user.password:
                 session['username'] = user.username
-                return redirect(url_for('.profile', username=user.username))
+                return redirect(url_for('.profile', username=user.username)), 200
             error = "Incorrect Credentials"
         else:
             error = "Check you email to complete your registration"
@@ -127,7 +128,7 @@ def register():
         # send email
         html_body = render_template('mail/user/register.html', user=user)
         html_text = render_template('mail/user/register.txt', user=user)
-        email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
+        # email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
         return "User is registred Successfuly"
     return render_template('user/register.html', form=form)
 

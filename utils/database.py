@@ -6,7 +6,8 @@ import pymongo
 # 'social-network'
 
 class Database:
-    URI = os.environ.get('DATABASE_URI') or str(os.environ.get("HOST")) + str(os.environ.get("MONGODB_DEV_NAME"))
+    URI = str(os.environ.get("HOST")) + str(os.environ.get("MONGODB_NAME"))
+    print(URI)
     CLIENT = pymongo.MongoClient(URI)
     DATABASE = CLIENT.get_default_database()
 

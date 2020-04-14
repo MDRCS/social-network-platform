@@ -4,7 +4,6 @@ from wtforms.widgets import TextArea
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import ValidationError
 from user.models import User
-import re
 
 
 class BaseUserForm(form.FlaskForm):
@@ -13,7 +12,7 @@ class BaseUserForm(form.FlaskForm):
 
     email = EmailField('Email', [
         validators.DataRequired(),
-        validators.email()
+        validators.Email()
     ])
 
     username = StringField('Username', [
@@ -48,14 +47,13 @@ class RegisterForm(BaseUserForm, PasswordForm):
         if User.getByEmail(field.data):
             raise ValidationError("This Email already registred ..!")
 
-
 class LoginForm(form.FlaskForm):
     username = StringField('Username', [
         validators.DataRequired(),
         validators.length(min=4, max=25)
     ])
 
-    password = PasswordField('New Password', [
+    password = PasswordField('Password', [
         validators.DataRequired(),
         validators.length(min=4, max=80)
     ])
