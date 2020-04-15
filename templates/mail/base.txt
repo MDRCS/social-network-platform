@@ -1,5 +1,5 @@
 {% block body %}{% endblock %}
 
 ---
-The Flaskbook Team
+The Social-Network Team
 {{ config.HOSTNAME }}

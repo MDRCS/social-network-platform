@@ -71,7 +71,7 @@
         {% for friend in friends %}
         <div class="media">
           <div class="media-left">
-            <a class="img-thumnbnail" href="{{ url_for('.profile', username=friend.to_user.username) }}">
+            <a class="img-thumnbnail" href="{{ url_for('user_blueprint.profile', username=friend.to_user.username) }}">
             </a>
           </div>
           <div class="media-body">
@@ -94,12 +94,12 @@
 
             <div class="col-md-3 friend-grid-user">
               <div class="friend-grid-user-image">
-                <a class="img-thumbnail" href="{{ url_for('.profile', username=friend.to_user.username) }}">
+                <a class="img-thumbnail" href="{{ url_for('user_blueprint.profile', username=friend.to_user.username) }}">
                 </a>
               </div>
               <div class="friend-grid-user-data">
                 <h4 class="profile-fullname">{{ friend.to_user.first_name }} {{ friend.to_user.last_name }} </h5>
-                <h5 class="profile-username"><a href="{{ url_for('.profile', username=friend.to_user.username) }}">@{{ friend.to_user.username }}</a></h4>
+                <h5 class="profile-username"><a href="{{ url_for('user_blueprint.profile', username=friend.to_user.username) }}">@{{ friend.to_user.username }}</a></h4>
               </div>
               <div class="friend-grid-user-friends-button">
                 {{ rel_button(friend.is_friend(logged_user), friend.to_user) }}

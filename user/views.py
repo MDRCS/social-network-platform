@@ -1,8 +1,7 @@
-from flask import Blueprint, render_template, session, redirect, url_for, abort
+from flask import Blueprint, render_template, session, redirect, url_for, abort, request
 import bcrypt
-import os
 import uuid
-from user.forms import RegisterForm, LoginForm, EditForm
+from user.forms import RegisterForm, LoginForm, EditForm, ForgotForm, PasswordResetForm
 from user.models import User
 from utils.commons import email
 
@@ -11,7 +10,7 @@ user_blueprint = Blueprint('user_blueprint', __name__)
 
 @user_blueprint.route('/')
 def home():
-    return "You hurt me ! .."
+    return redirect(url_for('.login'))
 
 
 @user_blueprint.route('/profile/<string:username>', methods=['GET'])
@@ -75,17 +74,7 @@ def edit():
         abort(404)
 
 
-@user_blueprint.route('/change_password')
-def change_password():
-    return "You hurt me ! .."
-
-
-@user_blueprint.route('/forgot')
-def forgot():
-    return "You hurt me ! .."
-
-
-@user_blueprint.route('/logout', methods=('GET', 'POST'))
+@user_blueprint.route('/logout', methods=['GET'])
 def logout():
     session['username'] = ''
     return redirect(url_for('.login'))
@@ -145,3 +134,94 @@ def confirm(username, code):
             return render_template('user/email_confirmed.html')
     else:
         abort(404)
+
+
+@user_blueprint.route('/forgot', methods=['GET', 'POST'])
+def forgot():
+    error = None
+    message = None
+    form = ForgotForm()
+
+    if form.validate_on_submit():
+        user = User.getByEmail(form.email.data)
+        if user:
+            code = str(uuid.uuid4().hex)
+            user.change_configuration = {
+                "password_reset_code": code,
+            }
+            user.update_record()
+            html_body = render_template('mail/user/password_reset.html', user=user)
+            html_text = render_template('mail/user/password_reset.txt', user=user)
+            email(user.email, "Password Reset Request", html_body, html_text)
+        message = "You will receive a password reset email if we find that email in our system"
+    return render_template('user/forgot.html', form=form, message=message, error=error)
+
+
+@user_blueprint.route('/password_reset/<string:username>/<string:code>', methods=['GET', 'POST'])
+def password_reset(username, code):
+    require_current = None
+    message = None
+
+    form = PasswordResetForm()
+    user = User.getByName(username)
+    if not user and user.change_configuration.get('password_reset_code') != code:
+        abort(404)
+
+    if request.method == 'POST':
+        del form.current_password
+        if form.validate_on_submit():
+            if form.password.data == form.confirm.data:
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(form.password.data, salt)
+                user.password = hashed_password
+                user.change_configuration = {}
+                user.update_record()
+
+                if session.get('username'):
+                    session['username'] = ''
+                return redirect(url_for('.password_reset_complete'))
+
+    return render_template('user/password_reset.html',
+                           form=form,
+                           message=message,
+                           require_current=require_current,
+                           username=username,
+                           code=code
+                           )
+
+
+@user_blueprint.route('/password_reset_complete')
+def password_reset_complete():
+    return render_template('user/password_change_confirmed.html')
+
+
+@user_blueprint.route('/change_password', methods=('GET', 'POST'))
+def change_password():
+    require_current = True
+    error = None
+    form = PasswordResetForm()
+
+    user = User.getByName(username=session.get('username'))
+
+    if not user:
+        abort(404)
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            if bcrypt.hashpw(form.current_password.data, user.password) == user.password:
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(form.password.data, salt)
+                user.password = hashed_password
+                user.save()
+                # if user is logged in, log him out
+                if session.get('username'):
+                    session.pop('username')
+                return redirect(url_for('.password_reset_complete'))
+            else:
+                error = "Incorrect password"
+
+    return render_template('user/password_reset.html',
+                           form=form,
+                           require_current=require_current,
+                           error=error
+                           )

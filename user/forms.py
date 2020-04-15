@@ -47,6 +47,7 @@ class RegisterForm(BaseUserForm, PasswordForm):
         if User.getByEmail(field.data):
             raise ValidationError("This Email already registred ..!")
 
+
 class LoginForm(form.FlaskForm):
     username = StringField('Username', [
         validators.DataRequired(),
@@ -61,3 +62,17 @@ class LoginForm(form.FlaskForm):
 
 class EditForm(BaseUserForm):
     pass
+
+
+class ForgotForm(form.FlaskForm):
+    email = EmailField('Email', [
+        validators.DataRequired(),
+        validators.Email()
+    ])
+
+
+class PasswordResetForm(PasswordForm):
+    current_password = PasswordField('Current Password', [
+        validators.DataRequired(),
+        validators.length(min=4, max=80)
+    ])
