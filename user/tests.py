@@ -183,7 +183,6 @@ class UserTest(unittest.TestCase):
         assert user.change_configuration != {}
 
         user_passwords = {
-            "current_password": user.password,
             "password": "12346",
             "confirm": "12346"
         }
@@ -213,3 +212,27 @@ class UserTest(unittest.TestCase):
         with self.app as c:
             c.get('/')
             assert session['username'] == user.username
+
+    def test_change_password(self):
+        # create user
+        user = self.getUser()
+        self.app.post("/register", data=user, follow_redirects=True)
+        user = User.getByName(username=self.getUser()['username'])
+        code = user.change_configuration.get('confirmation_code')
+        rv = self.app.get('/confirm/' + user.username + '/' + code)
+        assert "Your email has been confirmed" in str(rv.data)
+
+        response = self.app.post('/login', data=dict(
+            username=user.username,
+            password=self.getUser()['password']
+        ))
+
+        user_passwords = {
+            "current_password": self.getUser()['password'],
+            "password": "12346",
+            "confirm": "12346"
+        }
+
+        response = self.app.post('/change_password', data=user_passwords, follow_redirects=True)
+        assert "Your password has been updated." in str(response.data)
+

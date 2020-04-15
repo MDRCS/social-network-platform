@@ -24,6 +24,7 @@ class TestingConfig(Config):
     WTF_CSRF_ENABLED = False
     HOSTNAME = "0.0.0.0:5000/"
 
+
 class ProductionConfig(Config):
     MONGODB_NAME = os.environ.get('MONGODB_PROD_NAME')
 
