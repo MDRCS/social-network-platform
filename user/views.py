@@ -64,7 +64,7 @@ def edit():
                 form.populate_obj(user)
                 user.update_record()
                 if message:
-                    return redirect(url_for('.logout')), 302
+                    return redirect(url_for('.logout'))
                 else:
                     message = "Your info has been updated succefully ..!"
 
@@ -89,7 +89,7 @@ def login():
         if user.email_confirmation:
             if user and bcrypt.hashpw(form.password.data, user.password) == user.password:
                 session['username'] = user.username
-                return redirect(url_for('.profile', username=user.username)), 200
+                return redirect(url_for('.profile', username=user.username))
             error = "Incorrect Credentials"
         else:
             error = "Check you email to complete your registration"
@@ -157,6 +157,7 @@ def forgot():
     return render_template('user/forgot.html', form=form, message=message, error=error)
 
 
+# change password when you are not logged in -> from forgot password
 @user_blueprint.route('/password_reset/<string:username>/<string:code>', methods=['GET', 'POST'])
 def password_reset(username, code):
     require_current = None
@@ -195,6 +196,7 @@ def password_reset_complete():
     return render_template('user/password_change_confirmed.html')
 
 
+# change password when you are logged in
 @user_blueprint.route('/change_password', methods=('GET', 'POST'))
 def change_password():
     require_current = True
@@ -212,7 +214,7 @@ def change_password():
                 salt = bcrypt.gensalt()
                 hashed_password = bcrypt.hashpw(form.password.data, salt)
                 user.password = hashed_password
-                user.save()
+                user.update_record()
                 # if user is logged in, log him out
                 if session.get('username'):
                     session.pop('username')

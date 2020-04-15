@@ -7,6 +7,9 @@ from utils.database import Database
 from user.models import User
 from settings import config
 
+"""
+    NB: To run your tests safely, you should comment sending email operations in the `views.py` file.
+"""
 
 class UserTest(unittest.TestCase):
 
@@ -70,7 +73,7 @@ class UserTest(unittest.TestCase):
 
         with self.app as c:  # Each time you want to use a session map you should follow this method
             c.get('/')
-            assert response.status_code == 200
+            assert response.status_code == 302
             assert session['username'] == user.username
 
     def test_edit_profile(self):
@@ -129,7 +132,7 @@ class UserTest(unittest.TestCase):
             password=self.getUser()['password']
         ))
 
-        assert response.status_code == 200
+        assert response.status_code == 302
 
         # use a username already used
         user = self.getUser()
@@ -206,7 +209,7 @@ class UserTest(unittest.TestCase):
             password=user_passwords['password']
         ))
 
-        assert response.status_code == 200
+        assert response.status_code == 302
         with self.app as c:
             c.get('/')
             assert session['username'] == user.username

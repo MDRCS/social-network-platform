@@ -10,5 +10,6 @@ def create_app(envi_conf='default'):
     os.environ['DATABASE_URI'] = os.environ.get('HOST') + app.config['MONGODB_NAME']
     from user.views import user_blueprint
     app.register_blueprint(user_blueprint)
+    app.url_map.strict_slashes = False
 
     return app
