@@ -1,9 +1,11 @@
 import unittest
 import os
+import bcrypt
 from flask import session
 from app import create_app as create_app_test
 from utils.database import Database
 from user.models import User
+from settings import config
 
 
 class UserTest(unittest.TestCase):
@@ -160,3 +162,51 @@ class UserTest(unittest.TestCase):
 
         response = self.app.get('/profile/' + user.username)
         assert "@" + user.username in str(response.data)
+
+    def test_forget_password(self):
+        # create user
+        user = self.getUser()
+        self.app.post("/register", data=user, follow_redirects=True)
+        user = User.getByName(username=self.getUser()['username'])
+        code = user.change_configuration.get('confirmation_code')
+        rv = self.app.get('/confirm/' + user.username + '/' + code)
+        assert "Your email has been confirmed" in str(rv.data)
+
+        user = self.getUser()
+        response = self.app.post('/forgot', data=user)
+        assert "You will receive a password reset email if we find that email in our system" in str(response.data)
+
+        user = User.getByName(username=self.getUser()['username'])
+        assert user.change_configuration != {}
+
+        user_passwords = {
+            "current_password": user.password,
+            "password": "12346",
+            "confirm": "12346"
+        }
+
+        self.app.post(
+                        '/password_reset/' + user.username + '/'
+                        + user.change_configuration['password_reset_code'],
+                        data=user_passwords
+        )
+
+        user = User.getByName(username=self.getUser()['username'])
+
+        assert bcrypt.hashpw(user_passwords['password'], user.password) == user.password
+        assert bcrypt.checkpw(user_passwords['password'], user.password)
+        response = self.app.get('/password_reset_complete')
+
+        assert "Your password has been updated" in str(response.data)
+
+        # logging with new password
+
+        response = self.app.post('/login', data=dict(
+            username=user.username,
+            password=user_passwords['password']
+        ))
+
+        assert response.status_code == 200
+        with self.app as c:
+            c.get('/')
+            assert session['username'] == user.username

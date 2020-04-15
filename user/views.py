@@ -58,7 +58,7 @@ def edit():
                     # email the user
                     body_html = render_template('mail/user/change_email.html', user=user)
                     body_text = render_template('mail/user/change_email.txt', user=user)
-                    # email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
+                    email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
 
             if not error:
                 form.populate_obj(user)
@@ -117,7 +117,7 @@ def register():
         # send email
         html_body = render_template('mail/user/register.html', user=user)
         html_text = render_template('mail/user/register.txt', user=user)
-        # email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
+        email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
         return "User is registred Successfuly"
     return render_template('user/register.html', form=form)
 
