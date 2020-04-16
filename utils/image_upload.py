@@ -2,7 +2,6 @@ import os
 import boto3
 from wand.image import Image
 from boto3.s3.transfer import S3Transfer
-
 from settings import Config
 from utils.commons import utc_now_timestamp as now, utc_now_ts_ms as now_ms
 

@@ -7,7 +7,7 @@ import uuid
 from user.forms import RegisterForm, LoginForm, EditForm, ForgotForm, PasswordResetForm
 from user.models import User
 from utils.commons import email
-from utils.images import thumbnail_process
+from utils.image_upload import thumbnail_process
 
 user_blueprint = Blueprint('user_blueprint', __name__)
 
@@ -41,9 +41,14 @@ def edit():
             image_ts = None
             if request.files.get('image'):
                 filename = secure_filename(form.image.data.filename)
-                file_path = os.path.join(Config.UPLOAD_FOLDER, 'user', filename)
+                folder_path = os.path.join(Config.UPLOAD_FOLDER, 'user_'+user.id)
+                if not os.path.exists(folder_path):
+                    os.makedirs(folder_path)
+                if Config.AWS_BUCKET:
+                    pass
+                file_path = os.path.join(folder_path, filename)
                 form.image.data.save(file_path)
-                image_ts = str(thumbnail_process(file_path, 'user', str(user.id)))
+                image_ts = str(thumbnail_process(file_path, 'user_' + user.id, str(user.id)))
             if user.username != form.username.data.lower():
                 if User.getByName(form.username.data.lower()):
                     error = "This username is already in use."
