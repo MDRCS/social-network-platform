@@ -76,7 +76,7 @@
                 aws_secret_access_key = XMF8v*************
         !- vi ~/.aws/config
                     [default]
-                    region = us-east-1
+                    region = eu-west-3
 
 
 
@@ -89,6 +89,19 @@
     - AMAZON S3 (Image Upload)
     - Unittest (Unitesting)
 
+##### + CORS configuration editor ARN: arn:aws:s3:::social-network-image-upload
+
+    <?xml version="1.0" encoding="UTF-8"?>
+        <CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+            <CORSRule>
+                <AllowedOrigin>*</AllowedOrigin>
+                <AllowedOrigin>http://*</AllowedOrigin>
+                <AllowedOrigin>https://*</AllowedOrigin>
+                <AllowedMethod>GET</AllowedMethod>
+                <MaxAgeSeconds>3000</MaxAgeSeconds>
+                <AllowedHeader>Authorization</AllowedHeader>
+            </CORSRule>
+        </CORSConfiguration>
 
 ##### + Install Some Dependencies :
    - [ImageMagick](https://imagemagick.org/script/download.php)

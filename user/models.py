@@ -33,6 +33,8 @@ class User(object):
     def profile_imgsrc(self, size):
         if self.profile_image:
             if Config.AWS_BUCKET:
+                print(os.path.join(Config.AWS_CONTENT_URL, Config.AWS_BUCKET, 'user',
+                                    '%s.%s.%s.png' % (self.id, self.profile_image, size)))
                 return os.path.join(Config.AWS_CONTENT_URL, Config.AWS_BUCKET, 'user',
                                     '%s.%s.%s.png' % (self.id, self.profile_image, size))
             else:
