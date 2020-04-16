@@ -33,13 +33,16 @@ class User(object):
     def profile_imgsrc(self, size):
         if self.profile_image:
             if Config.AWS_BUCKET:
+                print(os.path.join(Config.AWS_CONTENT_URL, Config.AWS_BUCKET, 'user_' + self.id,
+                                    '%s.%s.%s.png' % (self.id, self.profile_image, size)))
                 return os.path.join(Config.AWS_CONTENT_URL, Config.AWS_BUCKET, 'user_' + self.id,
                                     '%s.%s.%s.png' % (self.id, self.profile_image, size))
             else:
                 return url_for('static', filename=os.path.join(Config.STATIC_IMAGE_URL, 'user_' + self.id,
                                                                '%s.%s.%s.png' % (self.id, self.profile_image, size)))
         else:
-            return url_for('static', filename=os.path.join(Config.STATIC_IMAGE_URL, 'user', 'no-profile.%s.png' % (size)))
+            return url_for('static',
+                           filename=os.path.join(Config.STATIC_IMAGE_URL, 'user', 'no-profile.%s.png' % (size)))
 
     @classmethod
     def getByEmail(cls, email):

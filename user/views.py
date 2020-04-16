@@ -42,10 +42,6 @@ def edit():
             if request.files.get('image'):
                 filename = secure_filename(form.image.data.filename)
                 folder_path = os.path.join(Config.UPLOAD_FOLDER, 'user_'+user.id)
-                if not os.path.exists(folder_path):
-                    os.makedirs(folder_path)
-                if Config.AWS_BUCKET:
-                    pass
                 file_path = os.path.join(folder_path, filename)
                 form.image.data.save(file_path)
                 image_ts = str(thumbnail_process(file_path, 'user_' + user.id, str(user.id)))
