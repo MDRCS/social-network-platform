@@ -1,9 +1,13 @@
 from flask import Blueprint, render_template, session, redirect, url_for, abort, request
 import bcrypt
+import os
+from settings import Config
+from werkzeug.utils import secure_filename
 import uuid
 from user.forms import RegisterForm, LoginForm, EditForm, ForgotForm, PasswordResetForm
 from user.models import User
 from utils.commons import email
+from utils.images import thumbnail_process
 
 user_blueprint = Blueprint('user_blueprint', __name__)
 
@@ -34,6 +38,12 @@ def edit():
     if user:
         form = EditForm(obj=user)
         if form.validate_on_submit():
+            image_ts = None
+            if request.files.get('image'):
+                filename = secure_filename(form.image.data.filename)
+                file_path = os.path.join(Config.UPLOAD_FOLDER, 'user', filename)
+                form.image.data.save(file_path)
+                image_ts = str(thumbnail_process(file_path, 'user', str(user.id)))
             if user.username != form.username.data.lower():
                 if User.getByName(form.username.data.lower()):
                     error = "This username is already in use."
@@ -58,10 +68,12 @@ def edit():
                     # email the user
                     body_html = render_template('mail/user/change_email.html', user=user)
                     body_text = render_template('mail/user/change_email.txt', user=user)
-                    # email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
+                    email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
 
             if not error:
                 form.populate_obj(user)
+                if image_ts:
+                    user.profile_image = image_ts
                 user.update_record()
                 if message:
                     return redirect(url_for('.logout'))
@@ -117,7 +129,7 @@ def register():
         # send email
         html_body = render_template('mail/user/register.html', user=user)
         html_text = render_template('mail/user/register.txt', user=user)
-        # email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
+        email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
         return "User is registred Successfuly"
     return render_template('user/register.html', form=form)
 
@@ -152,7 +164,7 @@ def forgot():
             user.update_record()
             html_body = render_template('mail/user/password_reset.html', user=user)
             html_text = render_template('mail/user/password_reset.txt', user=user)
-            # email(user.email, "Password Reset Request", html_body, html_text)
+            email(user.email, "Password Reset Request", html_body, html_text)
         message = "You will receive a password reset email if we find that email in our system"
     return render_template('user/forgot.html', form=form, message=message, error=error)
 

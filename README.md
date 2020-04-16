@@ -88,3 +88,7 @@
     - Mongodb (NoSQL Database)
     - AMAZON S3 (Image Upload)
     - Unittest (Unitesting)
+
+
+##### + Install Some Dependencies :
+   - [ImageMagick](https://imagemagick.org/script/download.php)

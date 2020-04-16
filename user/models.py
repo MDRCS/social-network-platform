@@ -1,15 +1,15 @@
 import uuid
-from flask import session
+import os
+from flask import session, url_for
 from utils.commons import utc_now_timestamp as now
 from utils.database import Database
-
-
-# user = User(username='mdrahali', password='123', email='mdr.ga99@gmail.com', first_name='Mohamed', last_name='El Rahali', bio='bio ...')
+from settings import Config
 
 
 class User(object):
 
-    def __init__(self, username, password, email, first_name, last_name, bio, email_confirmation=False, change_configuration={}, createdAt=None, _id=None):
+    def __init__(self, username, password, email, first_name, last_name, bio, profile_image="",
+                 email_confirmation=False, change_configuration={}, createdAt=None, _id=None):
         self.username = username.lower()
         self.password = password
         self.email = email.lower()
@@ -18,6 +18,7 @@ class User(object):
         self.createdAt = createdAt if createdAt else now()
         self.id = _id if _id else uuid.uuid4().hex
         self.bio = bio
+        self.profile_image = profile_image
         self.meta = User.create_index({"username": 1, "email": 1, "createdAt": -1})
         self.email_confirmation = email_confirmation
         self.change_configuration = change_configuration
@@ -28,6 +29,12 @@ class User(object):
             (index, order)
             for index, order in indexes.items()
         ]
+
+    def profile_imgsrc(self, size):
+        return url_for('static', filename=os.path.join(
+                                            Config.STATIC_IMAGE_URL, 'user',
+                                            '%s.%s.%s.png' % (self.id, self.profile_image, size)
+        ))
 
     @classmethod
     def getByEmail(cls, email):
@@ -92,5 +99,6 @@ class User(object):
             "bio": self.bio,
             "email_confirmation": self.email_confirmation,
             "change_configuration": self.change_configuration,
+            "profile_image": self.profile_image,
             "_id": self.id,
         }

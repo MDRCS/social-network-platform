@@ -9,12 +9,14 @@ if os.path.exists(dotenv_path):
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SSL_REDIRECT = False
+    UPLOAD_FOLDER = "/Users/MDRAHALI/Desktop/Learning_Roadmap/social-network-platform/static/images"
+    STATIC_IMAGE_URL = "images"
+    HOSTNAME = "0.0.0.0:5000"
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
     MONGODB_NAME = os.environ.get('MONGODB_DEV_NAME')
-    HOSTNAME = "0.0.0.0:5000/"
 
 
 class TestingConfig(Config):
@@ -22,7 +24,6 @@ class TestingConfig(Config):
     DEBUG = True
     MONGODB_NAME = os.environ.get('MONGODB_TEST_NAME')
     WTF_CSRF_ENABLED = False
-    HOSTNAME = "0.0.0.0:5000/"
 
 
 class ProductionConfig(Config):
