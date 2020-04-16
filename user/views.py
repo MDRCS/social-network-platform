@@ -68,7 +68,7 @@ def edit():
                     # email the user
                     body_html = render_template('mail/user/change_email.html', user=user)
                     body_text = render_template('mail/user/change_email.txt', user=user)
-                    email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
+                    # email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
 
             if not error:
                 form.populate_obj(user)
@@ -129,7 +129,7 @@ def register():
         # send email
         html_body = render_template('mail/user/register.html', user=user)
         html_text = render_template('mail/user/register.txt', user=user)
-        email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
+        # email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
         return "User is registred Successfuly"
     return render_template('user/register.html', form=form)
 
@@ -164,7 +164,7 @@ def forgot():
             user.update_record()
             html_body = render_template('mail/user/password_reset.html', user=user)
             html_text = render_template('mail/user/password_reset.txt', user=user)
-            email(user.email, "Password Reset Request", html_body, html_text)
+            # email(user.email, "Password Reset Request", html_body, html_text)
         message = "You will receive a password reset email if we find that email in our system"
     return render_template('user/forgot.html', form=form, message=message, error=error)
 

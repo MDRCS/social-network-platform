@@ -12,6 +12,8 @@ class Config:
     UPLOAD_FOLDER = "/Users/MDRAHALI/Desktop/Learning_Roadmap/social-network-platform/static/images"
     STATIC_IMAGE_URL = "images"
     HOSTNAME = "0.0.0.0:5000"
+    AWS_BUCKET = "social-network-platform"
+    AWS_CONTENT_URL = "https://s3.amazonaws.com"
 
 
 class DevelopmentConfig(Config):
