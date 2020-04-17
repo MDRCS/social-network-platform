@@ -9,7 +9,7 @@
     systemLog:
         destination: file
         path: "/Users/MDRAHALI/Desktop/Learning_Roadmap/social-network-platform/log/mongod.log"
-        logAppend: t`rue
+        logAppend: true
     storage:
         journal:
             enabled: false
