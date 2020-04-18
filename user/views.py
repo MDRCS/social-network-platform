@@ -112,6 +112,7 @@ def login():
 @user_blueprint.route('/register', methods=('GET', 'POST'))
 def register():
     form = RegisterForm()
+    message = None
     if form.validate_on_submit():
         salt = bcrypt.gensalt()
         code = str(uuid.uuid4().hex)
@@ -130,9 +131,10 @@ def register():
         # send email
         html_body = render_template('mail/user/register.html', user=user)
         html_text = render_template('mail/user/register.txt', user=user)
-        # email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
-        return "User is registred Successfuly"
-    return render_template('user/register.html', form=form)
+        email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
+        message = "Please Check you email to complete registration."
+        return render_template('user/register.html', form=form, message=message)
+    return render_template('user/register.html', form=form, message=message)
 
 
 @user_blueprint.route('/confirm/<string:username>/<string:code>', methods=('GET', 'POST'))

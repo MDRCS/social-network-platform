@@ -23,8 +23,8 @@ class User(object):
         self.email_confirmation = email_confirmation
         self.change_configuration = change_configuration
 
-    @classmethod
-    def create_index(cls, indexes):
+    @staticmethod
+    def create_index(indexes):
         return [
             (index, order)
             for index, order in indexes.items()
@@ -33,8 +33,6 @@ class User(object):
     def profile_imgsrc(self, size):
         if self.profile_image:
             if Config.AWS_BUCKET:
-                print(os.path.join(Config.AWS_CONTENT_URL, Config.AWS_BUCKET, 'user_' + self.id,
-                                    '%s.%s.%s.png' % (self.id, self.profile_image, size)))
                 return os.path.join(Config.AWS_CONTENT_URL, Config.AWS_BUCKET, 'user_' + self.id,
                                     '%s.%s.%s.png' % (self.id, self.profile_image, size))
             else:
@@ -58,37 +56,9 @@ class User(object):
 
     @classmethod
     def getById(cls, id):
-        user = Database.find_one('users', {'id': id})
+        user = Database.find_one('users', {'_id': id})
         if user is not None:
             return cls(**user)
-
-    @staticmethod
-    def valid_login(email, password):
-        # check whether a user's email matches the password that they sent us
-        user = User.getByEmail(email)
-        if user is not None:
-            return user.password == password
-        return False
-
-    @staticmethod
-    def login(user_email):
-        # valid_login() has already been called
-        session['email'] = user_email
-
-    @staticmethod
-    def logout():
-        session['email'] = None
-
-    @classmethod
-    def register(cls, email, password):
-        user = cls.getByEmail(email)
-        if user is None:
-            new_user = cls(email, password)
-            new_user.save_database()
-            session['email'] = email
-            return True
-        else:
-            return False
 
     def save_database(self):
         Database.insert('users', self.json(), self.meta)

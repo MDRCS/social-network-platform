@@ -12,6 +12,10 @@
 
     <h3>Registration</h3>
 
+	  {% if message %}
+    	<div class="alert alert-success" role="alert">{{ message }}</div>
+	  {% endif %}
+
     {% from "_formhelpers.html" import render_field %}
     <form method="POST" action="{{ url_for('user_blueprint.register')}}" role="form">
 

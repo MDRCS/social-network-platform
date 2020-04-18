@@ -13,6 +13,7 @@ class Database:
 
     @staticmethod
     def insert(collection: str, data: Dict, meta: List) -> None:
+
         Database.DATABASE[collection].insert_one(data)
         for index in meta:
             Database.DATABASE[collection].create_index([index])

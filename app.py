@@ -11,4 +11,7 @@ def create_app(envi_conf='default'):
     from user.views import user_blueprint
     app.register_blueprint(user_blueprint)
 
+    from relationship.views import relationship_blueprint
+    app.register_blueprint(relationship_blueprint)
+
     return app
