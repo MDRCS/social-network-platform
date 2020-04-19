@@ -1,4 +1,6 @@
 import uuid
+
+from user.models import User
 from utils.commons import utc_now_timestamp as now
 from utils.database import Database
 
@@ -34,6 +36,14 @@ class Relationship(object):
             for index, order in indexes.items()
         ]
 
+    def is_friend(self, user):
+        if user:
+            from_user = User.getByName(user)
+            to_user = User.getById(self.to_user)
+            return self.get_relationship(from_user, to_user)
+        else:
+            return None
+
     @classmethod
     def get_relationship(cls, from_user, to_user):
         rel_record = Database.find_one('relationships', {'from_user': from_user.id, 'to_user': to_user.id})
@@ -43,6 +53,8 @@ class Relationship(object):
 
     @classmethod
     def get_relationship_status(cls, from_user, to_user):
+        if from_user == to_user:
+            return "SAME"
         rel = Relationship.get_relationship(from_user, to_user)
         if rel and rel.rel_type == cls.RELATIONSHIP_TYPE.get(cls.FRIENDS):
             if rel.status == cls.STATUS_TYPE.get(cls.PENDING):

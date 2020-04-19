@@ -69,12 +69,13 @@ def remove_friend(to_username):
     to_user = User.getByName(to_username)
 
     if to_user:
-        rel = Relationship.get_relationship(logged_user, to_user)
+
         rel_status = Relationship.get_relationship_status(logged_user, to_user)
         if rel_status == "FRIENDS_PENDING" \
             or rel_status == "FRIENDS_APPROVED" \
             or rel_status == "REVERSE_FRIENDS_PENDING":
 
+            rel = Relationship.get_relationship(logged_user, to_user)
             rel.delete_record()
             reverse_rel = Relationship.get_relationship(to_user, logged_user)
             reverse_rel.delete_record()
@@ -94,20 +95,22 @@ def block(to_username):
     to_user = User.getByName(to_username)
 
     if to_user:
-        rel = Relationship.get_relationship(logged_user, to_user)
+
         rel_status = Relationship.get_relationship_status(logged_user, to_user)
         if rel_status == "FRIENDS_PENDING" \
             or rel_status == "FRIENDS_APPROVED" \
             or rel_status == "REVERSE_FRIENDS_PENDING":
+
+            rel = Relationship.get_relationship(logged_user, to_user)
             rel.delete_record()
             reverse_rel = Relationship.get_relationship(to_user, logged_user)
             reverse_rel.delete_record()
 
         Relationship(
-            from_user=logged_user,
-            to_user=to_user,
-            rel_type=Relationship.RELATIONSHIP_TYPE.get(Relationship.FRIENDS),
-            status=Relationship.STATUS_TYPE.get(Relationship.PENDING)
+            from_user=logged_user.id,
+            to_user=to_user.id,
+            rel_type=Relationship.RELATIONSHIP_TYPE.get(Relationship.BLOCKED),
+            status=Relationship.STATUS_TYPE.get(Relationship.APPROVED)
         ).save_database()
 
         if ref:
@@ -125,15 +128,15 @@ def unblock(to_username):
     to_user = User.getByName(to_username)
 
     if to_user:
-        rel = Relationship.get_relationship(logged_user, to_user)
         rel_status = Relationship.get_relationship_status(logged_user, to_user)
 
         if rel_status == "BLOCKED":
+            rel = Relationship.get_relationship(logged_user, to_user)
             rel.delete_record()
         if ref:
             return redirect(ref)
         else:
-            return redirect(url_for('user_app.profile', username=to_user.username))
+            return redirect(url_for('user_blueprint.profile', username=to_user.username))
 
     else:
         abort(404)
