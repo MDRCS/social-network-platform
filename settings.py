@@ -20,6 +20,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     MONGODB_NAME = os.environ.get('MONGODB_DEV_NAME')
+    AWS_SEND_MAIL = False
 
 
 class TestingConfig(Config):

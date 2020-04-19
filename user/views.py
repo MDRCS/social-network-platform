@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 import uuid
 from user.forms import RegisterForm, LoginForm, EditForm, ForgotForm, PasswordResetForm
 from user.models import User
+from relationship.models import Relationship
 from utils.commons import email
 from utils.image_upload import thumbnail_process
 
@@ -17,15 +18,58 @@ def home():
     return redirect(url_for('.login'))
 
 
-@user_blueprint.route('/profile/<string:username>', methods=['GET'])
-def profile(username):
+@user_blueprint.route('/<username>/friends/<int:friends_page_number>', endpoint='profile-friends-page')
+@user_blueprint.route('/<username>/friends', endpoint='profile-friends')
+@user_blueprint.route('/profile/<string:username>')
+def profile(username, friends_page_number=1):
     edit_profile = False
+    logged_user = None
+    rel = None
+    friends_page = False
+    friends_per_page = 3
     user = User.getByName(username)
-    if session['username'] and session['username'] == username:
-        edit_profile = True
-        return render_template('user/profile.html', user=user, edit_profile=edit_profile)
     if user:
-        return render_template('user/profile.html', user=user, edit_profile=edit_profile)
+        if session['username']:
+            logged_user = User.getByName(session['username'])
+            rel = Relationship.get_relationship_status(logged_user, user)
+
+            # get user friends
+            friends_list = Relationship.get_friends(
+                user=logged_user,
+                rel_type=Relationship.RELATIONSHIP_TYPE.get(Relationship.FRIENDS),
+                status=Relationship.STATUS_TYPE.get(Relationship.APPROVED)
+            )
+
+            friends_total = len(friends_list)
+
+            if 'friends' in request.url:
+                friends_page = True
+                # pagination
+
+                limit = friends_per_page * friends_page_number
+                offset = limit - friends_per_page
+                if friends_total >= limit:
+                    friends = friends_list[offset:limit]
+                else:
+                    friends = friends_list[offset:friends_total]
+            else:
+                if friends_list >= 5:
+                    friends = friends_list[:5]
+                else:
+                    friends = friends_list
+
+        if session['username'] and session['username'] == username:
+            edit_profile = True
+
+        return render_template('user/profile.html',
+                               user=user,
+                               logged_user=logged_user,
+                               rel=rel,
+                               edit_profile=edit_profile,
+                               friends=friends,
+                               friends_total=friends_total,
+                               friends_page=friends_page,
+                               )
     else:
         abort(404)
 
@@ -41,7 +85,7 @@ def edit():
             image_ts = None
             if request.files.get('image'):
                 filename = secure_filename(form.image.data.filename)
-                folder_path = os.path.join(Config.UPLOAD_FOLDER, 'user_'+user.id)
+                folder_path = os.path.join(Config.UPLOAD_FOLDER, 'user_' + user.id)
                 file_path = os.path.join(folder_path, filename)
                 form.image.data.save(file_path)
                 image_ts = str(thumbnail_process(file_path, 'user_' + user.id, str(user.id)))
@@ -69,7 +113,7 @@ def edit():
                     # email the user
                     body_html = render_template('mail/user/change_email.html', user=user)
                     body_text = render_template('mail/user/change_email.txt', user=user)
-                    # email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
+                    email(user.change_configuration['new_email'], "Confirm your new email", body_html, body_text)
 
             if not error:
                 form.populate_obj(user)
@@ -131,7 +175,7 @@ def register():
         # send email
         html_body = render_template('mail/user/register.html', user=user)
         html_text = render_template('mail/user/register.txt', user=user)
-        #email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
+        email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
         message = "Please Check you email to complete registration."
         return render_template('user/register.html', form=form, message=message)
     return render_template('user/register.html', form=form, message=message)
@@ -167,7 +211,7 @@ def forgot():
             user.update_record()
             html_body = render_template('mail/user/password_reset.html', user=user)
             html_text = render_template('mail/user/password_reset.txt', user=user)
-            # email(user.email, "Password Reset Request", html_body, html_text)
+            email(user.email, "Password Reset Request", html_body, html_text)
         message = "You will receive a password reset email if we find that email in our system"
     return render_template('user/forgot.html', form=form, message=message, error=error)
 

@@ -6,7 +6,6 @@ from utils.database import Database
 
 
 class Relationship(object):
-
     FRIENDS = 1
     BLOCKED = -1
 
@@ -50,6 +49,15 @@ class Relationship(object):
         if rel_record is not None:
             return cls(**rel_record)
 
+    @classmethod
+    def get_friends(cls, user, rel_type, status):
+        friends_records = Database.find('relationships',
+                                        {
+                                            "from_user": user.id,
+                                            "rel_type": rel_type,
+                                            "status": status
+                                        })
+        return [cls(**friend) for friend in friends_records]
 
     @classmethod
     def get_relationship_status(cls, from_user, to_user):
