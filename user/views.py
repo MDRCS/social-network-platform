@@ -131,7 +131,7 @@ def register():
         # send email
         html_body = render_template('mail/user/register.html', user=user)
         html_text = render_template('mail/user/register.txt', user=user)
-        email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
+        #email(user.change_configuration['new_email'], "Confirm your email", html_body, html_text)
         message = "Please Check you email to complete registration."
         return render_template('user/register.html', form=form, message=message)
     return render_template('user/register.html', form=form, message=message)

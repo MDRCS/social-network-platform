@@ -9,15 +9,20 @@ relationship_blueprint = Blueprint('relationship_blueprint', __name__)
 @relationship_blueprint.route('/add_friend/<to_username>')
 def add_friend(to_username):
     ref = request.referrer
+
     logged_user = User.getByName(session.get('username'))
     to_user = User.getByName(to_username)
-
     if to_user:
-        rel = Relationship.get_relationship(logged_user, to_user)
+
         rel_status = Relationship.get_relationship_status(logged_user, to_user)
         if rel_status == "REVERSE_FRIENDS_PENDING":
-            rel.status = Relationship.STATUS_TYPE.get(Relationship.APPROVED)
-            rel.update_record()
+
+            Relationship(
+                from_user=logged_user.id,
+                to_user=to_user.id,
+                rel_type=Relationship.RELATIONSHIP_TYPE.get(Relationship.FRIENDS),
+                status=Relationship.STATUS_TYPE.get(Relationship.APPROVED)
+            ).save_database()
 
             reverse_rel = Relationship.get_relationship(to_user, logged_user)
             reverse_rel.status = Relationship.STATUS_TYPE.get(Relationship.APPROVED)
@@ -26,11 +31,11 @@ def add_friend(to_username):
         elif rel_status is None:  # and rel_status != "REVERSE_BLOCKED"
 
             Relationship(
-                from_user=logged_user,
-                to_user=to_user,
+                from_user=logged_user.id,
+                to_user=to_user.id,
                 rel_type=Relationship.RELATIONSHIP_TYPE.get(Relationship.FRIENDS),
                 status=Relationship.STATUS_TYPE.get(Relationship.PENDING)
-            )
+            ).save_database()
 
             # email the user
             body_html = render_template(
@@ -44,10 +49,10 @@ def add_friend(to_username):
                 to_user=to_user,
             )
 
-            email(to_user.email,
-                  ("%s has requested to be friends") % logged_user.first_name,
-                  body_html,
-                  body_text)
+            # email(to_user.email,
+            #       ("%s has requested to be friends") % logged_user.first_name,
+            #       body_html,
+            #       body_text)
 
         if ref:
             return redirect(ref)
@@ -73,6 +78,7 @@ def remove_friend(to_username):
             rel.delete_record()
             reverse_rel = Relationship.get_relationship(to_user, logged_user)
             reverse_rel.delete_record()
+
         if ref:
             return redirect(ref)
         else:
@@ -92,8 +98,7 @@ def block(to_username):
         rel_status = Relationship.get_relationship_status(logged_user, to_user)
         if rel_status == "FRIENDS_PENDING" \
             or rel_status == "FRIENDS_APPROVED" \
-                or rel_status == "REVERSE_FRIENDS_PENDING":
-
+            or rel_status == "REVERSE_FRIENDS_PENDING":
             rel.delete_record()
             reverse_rel = Relationship.get_relationship(to_user, logged_user)
             reverse_rel.delete_record()
@@ -103,7 +108,7 @@ def block(to_username):
             to_user=to_user,
             rel_type=Relationship.RELATIONSHIP_TYPE.get(Relationship.FRIENDS),
             status=Relationship.STATUS_TYPE.get(Relationship.PENDING)
-        )
+        ).save_database()
 
         if ref:
             return redirect(ref)

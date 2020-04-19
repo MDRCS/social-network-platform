@@ -1,5 +1,4 @@
 import uuid
-from flask import session, url_for
 from utils.commons import utc_now_timestamp as now
 from utils.database import Database
 
@@ -40,7 +39,7 @@ class Relationship(object):
         rel_record = Database.find_one('relationships', {'from_user': from_user.id, 'to_user': to_user.id})
         if rel_record is not None:
             return cls(**rel_record)
-        return None
+
 
     @classmethod
     def get_relationship_status(cls, from_user, to_user):

@@ -5,11 +5,11 @@ from flask import session
 from app import create_app as create_app_test
 from utils.database import Database
 from user.models import User
-from settings import config
 
 """
     NB: To run your tests safely, you should comment sending email operations in the `views.py` file.
 """
+
 
 class UserTest(unittest.TestCase):
 
@@ -83,7 +83,7 @@ class UserTest(unittest.TestCase):
         rv = self.app.get('/confirm/' + user.username + '/' + code)
         assert "Your email has been confirmed" in str(rv.data)
 
-        response = self.app.post('/login', data=dict(
+        self.app.post('/login', data=dict(
             username=user.username,
             password=self.getUser()['password']
         ))
@@ -188,9 +188,9 @@ class UserTest(unittest.TestCase):
         }
 
         self.app.post(
-                        '/password_reset/' + user.username + '/'
-                        + user.change_configuration['password_reset_code'],
-                        data=user_passwords
+            '/password_reset/' + user.username + '/'
+            + user.change_configuration['password_reset_code'],
+            data=user_passwords
         )
 
         user = User.getByName(username=self.getUser()['username'])
@@ -222,7 +222,7 @@ class UserTest(unittest.TestCase):
         rv = self.app.get('/confirm/' + user.username + '/' + code)
         assert "Your email has been confirmed" in str(rv.data)
 
-        response = self.app.post('/login', data=dict(
+        self.app.post('/login', data=dict(
             username=user.username,
             password=self.getUser()['password']
         ))
@@ -235,4 +235,3 @@ class UserTest(unittest.TestCase):
 
         response = self.app.post('/change_password', data=user_passwords, follow_redirects=True)
         assert "Your password has been updated." in str(response.data)
-

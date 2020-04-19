@@ -76,7 +76,8 @@
                 aws_secret_access_key = XMF8v*************
         !- vi ~/.aws/config
                     [default]
-                    region = eu-west-3
+                    region = us-west-2
+
 
 
 
