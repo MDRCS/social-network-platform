@@ -1,5 +1,24 @@
 ## SOCIAL NETWORK PLATFORM
 
+##### + Features Built-in this social-network platform:
+    - Authentification & Authorization
+    - Email Registration Confirmation
+    - Change Password & Forgot
+    - Forms Data Validations
+    - Account Reconfirmation when Changing Email
+    - CRUD Ops on Models(User, Relationship, Feed)
+    - Image Uploads
+    - Social Network Standard Features:
+
+        + Post with multiple Images
+        + Like
+        + Profile
+        + Friendship
+        + Wall
+        + Feed (Fan-out Pattern)
+    - 90% Tested Features
+    - Mongodb configuration
+
 ##### + run Mongodb From the conf file (mongod.conf):
     - cd social-network-platform
     - mkdir data
