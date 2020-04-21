@@ -3,10 +3,11 @@
 ##### + Features Built-in this social-network platform:
     - Authentification & Authorization
     - Email Registration Confirmation
-    - Change Password & Forgot
+    - Password Reset Workflow (Change Password & Forgot)
     - Forms Data Validations
     - Account Reconfirmation when Changing Email
     - CRUD Ops on Models(User, Relationship, Feed)
+    - Pagination
     - Image Uploads
     - Social Network Standard Features:
 
@@ -18,6 +19,18 @@
         + Feed (Fan-out Pattern)
     - 90% Tested Features
     - Mongodb configuration
+    - Dockerization
+
+##### + Later on Features to be add:
+    - JWT Access Tokenization (Authorization)
+    - Rate Limiting
+    - Third-party registration & login
+    - Internationalization
+    - Migration
+    - Admin Panel
+    - Real-time chat
+    - Push Notification
+    - Full EC2 Deployment
 
 ##### + run Mongodb From the conf file (mongod.conf):
     - cd social-network-platform
