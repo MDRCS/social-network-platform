@@ -38,6 +38,10 @@ test:
 	export MONGODB_NAME=social-network-test
 	python tests.py
 
+coverage:
+	coverage run --omit venv/* tests.py
+	coverage report
+
 serve:
 	export environment=development
 	python manage.py runserver

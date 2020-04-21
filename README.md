@@ -1,5 +1,7 @@
 ## SOCIAL NETWORK PLATFORM
 
+![social-network-platfrom](static/images/user/wall.png)
+
 ##### + Features Built-in this social-network platform:
     - Authentification & Authorization
     - Email Registration Confirmation
@@ -9,6 +11,7 @@
     - CRUD Ops on Models(User, Relationship, Feed)
     - Pagination
     - Image Uploads
+    - Records Indexation (Faster Response From db)
     - Social Network Standard Features:
 
         + Post with multiple Images
@@ -17,9 +20,14 @@
         + Friendship
         + Wall
         + Feed (Fan-out Pattern)
+
     - 90% Tested Features
     - Mongodb configuration
-    - Dockerization
+    - Dockerization (CentOS)
+    - Coverage Report
+    - Bash Scripts
+    - Flask CLI
+    - AWS Integration
 
 ##### + Later on Features to be add:
     - JWT Access Tokenization (Authorization)
@@ -30,6 +38,8 @@
     - Admin Panel
     - Real-time chat
     - Push Notification
+    - Caching (Redis)
+    - UI Automated Testing (Selenium WebDriver)
     - Full EC2 Deployment
 
 ##### + run Mongodb From the conf file (mongod.conf):
@@ -111,9 +121,24 @@
                     region = us-west-2
 
 
+##### + Coverage Testing (delete `venv` virtual-env before executing the command):
+    - coverage run --omit /venv/* tests.py
+    - coverage report (or coverage html)
 
+##### + Docker Image Deploy:
+    - docker build .
+    - docker-compose up --build
 
-
+##### + Docker Commands:
+    - docker-compose stop
+    - docker-compose ps
+    - docker-compose rm -f
+    - docker rmi -f $(docker images -qf dangling=true)
+    - docker rmi social-network-platform_web --force
+    - docker rmi $(docker images --filter dangling=true -q --no-trunc) --force
+    - docker kill 29b49da748cf
+    - docker system prune
+    - docker volume prune
 
 ##### + Tech Stack And Tools used to build the app :
     - AMAZON Simple Email Service (Mailing Service)
@@ -121,6 +146,7 @@
     - Mongodb (NoSQL Database)
     - AMAZON S3 (Image Upload)
     - Unittest (Unitesting)
+    - Docker (Containers)
 
 ##### + CORS configuration editor ARN: arn:aws:s3:::social-network-image-upload
 
@@ -138,3 +164,4 @@
 
 ##### + Install Some Dependencies :
    - [ImageMagick](https://imagemagick.org/script/download.php)
+
