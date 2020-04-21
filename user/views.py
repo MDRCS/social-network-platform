@@ -1,12 +1,17 @@
 from flask import Blueprint, render_template, session, redirect, url_for, abort, request
 import bcrypt
 import os
+
+from feed.forms import FeedPostForm
 from settings import Config
 from werkzeug.utils import secure_filename
 import uuid
+
+from user.decorators import login_required
 from user.forms import RegisterForm, LoginForm, EditForm, ForgotForm, PasswordResetForm
 from user.models import User
-from relationship.models import Relationship
+from feed.models import Message, Feed
+from relationship.models import Relationship, RELATIONSHIP_TYPE, STATUS_TYPE, FRIENDS, PENDING, APPROVED, BLOCKED
 from utils.commons import email
 from utils.image_upload import thumbnail_process
 
@@ -15,66 +20,83 @@ user_blueprint = Blueprint('user_blueprint', __name__)
 
 @user_blueprint.route('/')
 def home():
-    return redirect(url_for('.login'))
+    if session.get('username'):
+        form = FeedPostForm()
+
+        user = User.getByName(session.get('username'))
+        feed_messages = Feed.get_feed(user.id)
+        return render_template('home/feed_home.html',
+                               user=user,
+                               form=form,
+                               feed_messages=feed_messages
+                               )
+
+    else:
+        return render_template('home/home.html')
 
 
 @user_blueprint.route('/<username>/friends/<int:friends_page_number>', endpoint='profile-friends-page')
 @user_blueprint.route('/<username>/friends', endpoint='profile-friends')
 @user_blueprint.route('/profile/<string:username>')
 def profile(username, friends_page_number=1):
-    edit_profile = False
     logged_user = None
     rel = None
     friends_page = False
     friends_per_page = 3
+    profile_messages = []
     user = User.getByName(username)
+
     if user:
         if session['username']:
             logged_user = User.getByName(session['username'])
-            rel = Relationship.get_relationship_status(logged_user, user)
+            rel = Relationship.get_relationship_status(logged_user.id, user.id)
 
-            # get user friends
-            friends_list = Relationship.get_friends(
-                user=logged_user,
-                rel_type=Relationship.RELATIONSHIP_TYPE.get(Relationship.FRIENDS),
-                status=Relationship.STATUS_TYPE.get(Relationship.APPROVED)
-            )
+        # get user friends
+        friends_list = Relationship.get_friends(
+            user=logged_user.id,
+            rel_type=RELATIONSHIP_TYPE.get(FRIENDS),
+            status=STATUS_TYPE.get(APPROVED)
+        )
 
-            friends_total = len(friends_list)
+        friends_total = len(friends_list)
 
-            if 'friends' in request.url:
-                friends_page = True
-                # pagination
+        if 'friends' in request.url:
+            friends_page = True
 
-                limit = friends_per_page * friends_page_number
-                offset = limit - friends_per_page
-                if friends_total >= limit:
-                    friends = friends_list[offset:limit]
-                else:
-                    friends = friends_list[offset:friends_total]
+            # pagination
+            limit = friends_per_page * friends_page_number
+            offset = limit - friends_per_page
+            if friends_total >= limit:
+                friends = friends_list[offset:limit]
             else:
-                if friends_list >= 5:
-                    friends = friends_list[:5]
-                else:
-                    friends = friends_list
+                friends = friends_list[offset:friends_total]
+        else:
+            if friends_total >= 5:
+                friends = friends_list[:5]
+            else:
+                friends = friends_list
 
-        if session['username'] and session['username'] == username:
-            edit_profile = True
+        form = FeedPostForm()
+
+        if logged_user and (rel == "SAME" or rel == "FRIENDS_APPROVED"):
+            profile_messages = Message.getMessages(logged_user.id)
 
         return render_template('user/profile.html',
                                user=user,
                                logged_user=logged_user,
                                rel=rel,
-                               edit_profile=edit_profile,
                                friends=friends,
                                friends_total=friends_total,
                                friends_page=friends_page,
+                               form=form,
+                               profile_messages=profile_messages
                                )
     else:
         abort(404)
 
 
 @user_blueprint.route('/edit', methods=['POST', 'GET'])
+@login_required
 def edit():
     error = None
     message = None
@@ -87,8 +109,11 @@ def edit():
                 filename = secure_filename(form.image.data.filename)
                 folder_path = os.path.join(Config.UPLOAD_FOLDER, 'user_' + user.id)
                 file_path = os.path.join(folder_path, filename)
+                if not os.path.exists(folder_path):
+                    os.makedirs(folder_path)
                 form.image.data.save(file_path)
                 image_ts = str(thumbnail_process(file_path, 'user_' + user.id, str(user.id)))
+
             if user.username != form.username.data.lower():
                 if User.getByName(form.username.data.lower()):
                     error = "This username is already in use."

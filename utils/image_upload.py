@@ -60,7 +60,7 @@ def crop_center(image):
 
 
 def image_height_transform(file, content_type, content_id, height=200):
-    image_id = now_ms()()
+    image_id = now_ms()
     filename_template = content_id + '.%s.%s.png'
 
     # original

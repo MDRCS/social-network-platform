@@ -1,37 +1,37 @@
 {% macro render_feed_message(message) %}
 <div class="media">
   <div class="media-left">
-    <a href="{{ url_for('user_app.profile', username=message.from_user.username) }}">
-      <img class="media-object" src="{{ message.from_user.profile_imgsrc('sm') }}" width="50" height="50" alt="{{ message.from_user.username }}">
+    <a href="{{ url_for('user_blueprint.profile', username=message.fromUser.username) }}">
+      <img class="media-object" src="{{ message.fromUser.profile_imgsrc('sm') }}" width="50" height="50" alt="{{ message.fromUser.username }}">
     </a>
   </div> <!-- media-left -->
   <div class="media-body">
     <div class="media-user-pane">
-      <span class="media-user"><a href="{{ url_for('user_app.profile', username=message.from_user.username) }}">{{ message.from_user.first_name }} {{ message.from_user.last_name }}</a></span>
+      <span class="media-user"><a href="{{ url_for('user_blueprint.profile', username=message.fromUser.username) }}">{{ message.fromUser.first_name }} {{ message.fromUser.last_name }}</a></span>
       {% if message.to_user %}
-      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> <span class="media-user"><a href="{{ url_for('user_app.profile', username=message.to_user.username) }}">{{ message.to_user.first_name }} {{ message.to_user.last_name }}</a></span>
+      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> <span class="media-user"><a href="{{ url_for('user_blueprint.profile', username=message.toUser.username) }}">{{ message.toUser.first_name }} {{ message.toUser.last_name }}</a></span>
       {% endif %}
     </div>
     <div class="media-text">{{ message.text_linkified|safe }}</div>
     {% if message.images %}
     <div class="media-images">
     {% for image in message.images %}
-      <img class="img-thumbnail" src="{{ message.post_imgsrc(image.ts, 'xlg') }}" width="{{ image.w }}" height="200" alt="" />
+      <img class="img-thumbnail" src="{{ message.post_imgsrc(image.ts, 'raw') }}" width="{{ image.w }}" height="200" alt="" />
     {% endfor %}
     </div> <!-- media-images -->
     {% endif %}
     <div class="media-footer">
-      <a href="{{ url_for('feed_app.message', message_id=message.id) }}" class="media-timestamp">
+      <a href="{{ url_for('feed_blueprint.comment', message_id=message.id) }}" class="media-timestamp">
         {{ message.human_timestamp }}
-      </a> - 
-      <a href="{{ url_for('feed_app.message', message_id=message.id) }}#comment-form">Comment</a>
-      {% if message.comments %}({{ message.comments.count() }}){% endif %}
-       - <a href="{{ url_for('feed_app.like_message', message_id=message.id) }}">Like</a>
+      </a> -
+      <a href="{{ url_for('feed_blueprint.comment', message_id=message.id) }}#comment-form">Comment</a>
+      {% if message.comments %}({{ message.comments|length }}){% endif %}
+       - <a href="{{ url_for('feed_blueprint.like', message_id=message.id) }}">Like</a>
       {% if message.likes %}
       <div class="media-footer-likes">
           <span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
           {% set comma = joiner(", ") %}
-          {% for like in message.likes %}{{ comma() }}<a href="{{ url_for('user_app.profile', username=like.from_user.username) }}">{{ like.from_user.username }}</a>{% endfor %}
+          {% for like in message.likes %}{{ comma() }}<a href="{{ url_for('user_blueprint.profile', username=like.fromUser.username) }}">{{ like.fromUser.username }}</a>{% endfor %}
       </div>
       {% endif %}
     </div>

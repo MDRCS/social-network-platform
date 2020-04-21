@@ -13,15 +13,14 @@ class Config:
     STATIC_IMAGE_URL = "images"
     HOSTNAME = "0.0.0.0:5000"
     AWS_BUCKET = "social-network-img-upload-aws-s3"
-    # AWS_CONTENT_URL = "https://s3-eu-west-3.amazonaws.com"
+    #AWS_CONTENT_URL = "https://s3-eu-west-3.amazonaws.com"
     AWS_CONTENT_URL = "https://s3-us-west-2.amazonaws.com"
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
     MONGODB_NAME = os.environ.get('MONGODB_DEV_NAME')
-    AWS_SEND_MAIL = False
-
+    AWS_SEND_MAIL= False
 
 class TestingConfig(Config):
     TESTING = True

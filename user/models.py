@@ -1,6 +1,6 @@
 import uuid
 import os
-from flask import session, url_for
+from flask import url_for
 from utils.commons import utc_now_timestamp as now
 from utils.database import Database
 from settings import Config

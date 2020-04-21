@@ -67,6 +67,7 @@ class EditForm(BaseUserForm):
                     'Only JPEG, PNG and GIFs allowed')
     ])
 
+
 class ForgotForm(form.FlaskForm):
     email = EmailField('Email', [
         validators.DataRequired(),

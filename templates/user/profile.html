@@ -46,7 +46,8 @@
           {% endif %}
 
           {% from "_formhelpers.html" import render_field %}
-          <form method="POST" action={{ url_for('feed_app.add_message') }} role="form">
+			<form method="POST" action="{{ url_for('feed_blueprint.add_message')}}" role="form" enctype="multipart/form-data">
+
             {{ form.hidden_tag() }}
 
             <div class="form-group">
@@ -64,7 +65,9 @@
 
           {% from "feed/_feed_messages.html" import render_feed_message %}
           {% for message in profile_messages %}
-            {{ render_feed_message(message) }}
+		  	{% if message %}
+            	{{ render_feed_message(message) }}
+			{% endif %}
           {% endfor %}
 
       </div> <!-- col-md-9 -->
@@ -78,13 +81,13 @@
         {% for friend in friends %}
         <div class="media">
           <div class="media-left">
-            <a class="img-thumnbnail" href="{{ url_for('.profile', username=friend.to_user.username) }}">
-              <img class="media-object" src="{{ friend.to_user.profile_imgsrc('sm') }}" width="50" height="50" alt="{{ friend.to_user.username }}">
+            <a class="img-thumnbnail" href="{{ url_for('.profile', username=friend.username) }}">
+              <img class="media-object" src="{{ friend.profile_imgsrc('sm') }}" width="50" height="50" alt="{{ friend.username }}">
             </a>
           </div>
           <div class="media-body">
-            <p>{{ friend.to_user.first_name }}<br />
-              <a href="{{ url_for('.profile', username=friend.to_user.username) }}">@{{ friend.to_user.username }}</a>
+            <p>{{ friend.first_name }}<br />
+              <a href="{{ url_for('.profile', username=friend.username) }}">@{{ friend.username }}</a>
             </p>
           </div>
         </div> <!-- media -->
@@ -102,16 +105,17 @@
 
             <div class="col-md-3 friend-grid-user">
               <div class="friend-grid-user-image">
-                <a class="img-thumbnail" href="{{ url_for('.profile', username=friend.to_user.username) }}">
-                  <img src="{{ friend.to_user.profile_imgsrc('lg') }}" width="75" alt="{{ friend.to_user.username }}">
+                <a class="img-thumbnail" href="{{ url_for('.profile', username=friend.username) }}">
+                  <img src="{{ friend.profile_imgsrc('lg') }}" width="75" alt="{{ friend.username }}">
                 </a>
               </div>
               <div class="friend-grid-user-data">
-                <h4 class="profile-fullname">{{ friend.to_user.first_name }} {{ friend.to_user.last_name }} </h5>
-                <h5 class="profile-username"><a href="{{ url_for('.profile', username=friend.to_user.username) }}">@{{ friend.to_user.username }}</a></h4>
+                <h5 class="profile-fullname">{{ friend.first_name }} {{ friend.last_name }} </h5>
+                <h5 class="profile-username"><a href="{{ url_for('.profile', username=friend.username) }}">@{{ friend.username }}</a></h5>
               </div>
               <div class="friend-grid-user-friends-button">
-                {{ rel_button(friend.is_friend(logged_user), friend.to_user) }}
+
+                {{ rel_button(friend.is_friend(logged_user.id), friend.touser) }}
               </div>
             </div> <!-- col-md-3 -->
 

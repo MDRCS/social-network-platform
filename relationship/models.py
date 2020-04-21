@@ -4,17 +4,18 @@ from user.models import User
 from utils.commons import utc_now_timestamp as now
 from utils.database import Database
 
+FRIENDS = 1
+BLOCKED = -1
+
+RELATIONSHIP_TYPE = {1: 'Friends', -1: 'Blocked'}
+
+PENDING = 0
+APPROVED = 1
+
+STATUS_TYPE = {0: 'Pending', 1: 'Approved'}
+
 
 class Relationship(object):
-    FRIENDS = 1
-    BLOCKED = -1
-
-    RELATIONSHIP_TYPE = {1: 'Friends', -1: 'Blocked'}
-
-    PENDING = 0
-    APPROVED = 1
-
-    STATUS_TYPE = {0: 'Pending', 1: 'Approved'}
 
     def __init__(self, from_user, to_user, _id=None, rel_type=RELATIONSHIP_TYPE.get(FRIENDS),
                  status=STATUS_TYPE.get(PENDING), req_date=now()):
@@ -35,17 +36,26 @@ class Relationship(object):
             for index, order in indexes.items()
         ]
 
+    @property
+    def username(self):
+        return User.getById(self.to_user).username
+
+    def profile_imgsrc(self, size):
+        return User.getById(self.to_user).profile_imgsrc(size)
+
     def is_friend(self, user):
         if user:
-            from_user = User.getByName(user)
-            to_user = User.getById(self.to_user)
-            return self.get_relationship(from_user, to_user)
+            return self.get_relationship_status(user, self.to_user)
         else:
             return None
 
+    def touser(self):
+        user = User.getById(self.to_user)
+        if user is not None:
+            return User(**user)
     @classmethod
     def get_relationship(cls, from_user, to_user):
-        rel_record = Database.find_one('relationships', {'from_user': from_user.id, 'to_user': to_user.id})
+        rel_record = Database.find_one('relationships', {'from_user': from_user, 'to_user': to_user})
         if rel_record is not None:
             return cls(**rel_record)
 
@@ -53,7 +63,7 @@ class Relationship(object):
     def get_friends(cls, user, rel_type, status):
         friends_records = Database.find('relationships',
                                         {
-                                            "from_user": user.id,
+                                            "from_user": user,
                                             "rel_type": rel_type,
                                             "status": status
                                         })
@@ -64,21 +74,21 @@ class Relationship(object):
         if from_user == to_user:
             return "SAME"
         rel = Relationship.get_relationship(from_user, to_user)
-        if rel and rel.rel_type == cls.RELATIONSHIP_TYPE.get(cls.FRIENDS):
-            if rel.status == cls.STATUS_TYPE.get(cls.PENDING):
+        if rel and rel.rel_type == RELATIONSHIP_TYPE.get(FRIENDS):
+            if rel.status == STATUS_TYPE.get(PENDING):
                 return "FRIENDS_PENDING"
-            if rel.status == cls.STATUS_TYPE.get(cls.APPROVED):
+            if rel.status == STATUS_TYPE.get(APPROVED):
                 return "FRIENDS_APPROVED"
-        elif rel and rel.rel_type == cls.RELATIONSHIP_TYPE.get(cls.BLOCKED):
+        elif rel and rel.rel_type == RELATIONSHIP_TYPE.get(BLOCKED):
             return "BLOCKED"
         else:
             reverse_rel = Relationship.get_relationship(to_user, from_user)
-            if reverse_rel and reverse_rel.rel_type == cls.RELATIONSHIP_TYPE.get(cls.FRIENDS):
-                if reverse_rel.status == cls.STATUS_TYPE.get(cls.PENDING):
+            if reverse_rel and reverse_rel.rel_type == RELATIONSHIP_TYPE.get(FRIENDS):
+                if reverse_rel.status == STATUS_TYPE.get(PENDING):
                     return "REVERSE_FRIENDS_PENDING"
-                if reverse_rel.status == cls.STATUS_TYPE.get(cls.APPROVED):
+                if reverse_rel.status == STATUS_TYPE.get(APPROVED):
                     return "REVERSE_FRIENDS_APPROVED"
-            elif reverse_rel and reverse_rel.rel_type == cls.RELATIONSHIP_TYPE.get(cls.BLOCKED):
+            elif reverse_rel and reverse_rel.rel_type == RELATIONSHIP_TYPE.get(BLOCKED):
                 return "REVERSE_BLOCKED"
         return None
 

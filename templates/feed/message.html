@@ -42,7 +42,7 @@
           {% endif %}
 
           {% from "_formhelpers.html" import render_field %}
-          <form method="POST" action="{{ url_for('feed_app.message', message_id=message.id)}}" role="form">
+          <form method="POST" action="{{ url_for('feed_blueprint.comment', message_id=message.id)}}" role="form">
 
             {{ form.hidden_tag() }}
 

@@ -6,10 +6,6 @@ from utils.database import Database
 from user.models import User
 from relationship.models import Relationship
 
-"""
-    NB: To run your tests safely, you should comment sending email operations in the `views.py` file.
-"""
-
 
 class RelationshipTest(unittest.TestCase):
 
@@ -100,7 +96,7 @@ class RelationshipTest(unittest.TestCase):
             Check the status of relationship between User 1, User 2.
         """
 
-        status = Relationship.get_relationship_status(user_1, user_2)
+        status = Relationship.get_relationship_status(user_1.id, user_2.id)
         assert status == "FRIENDS_PENDING"
 
         """
@@ -113,7 +109,7 @@ class RelationshipTest(unittest.TestCase):
             Check that the relationship between User 1 and  User 2 has been APPROVED
         """
 
-        status = Relationship.get_relationship_status(user_1, user_2)
+        status = Relationship.get_relationship_status(user_1.id, user_2.id)
         assert status == "FRIENDS_APPROVED"
 
         """
@@ -122,7 +118,7 @@ class RelationshipTest(unittest.TestCase):
 
         self.app.get('/remove_friend/' + user_1.username)
 
-        assert Relationship.get_relationship(user_2, user_1) is None
+        assert Relationship.get_relationship(user_2.id, user_1.id) is None
 
         """
             Check that no relationship exist
@@ -171,7 +167,7 @@ class RelationshipTest(unittest.TestCase):
             Check the relationship status between User 1 and User 2
         """
 
-        status = Relationship.get_relationship_status(user_1, user_2)
+        status = Relationship.get_relationship_status(user_1.id, user_2.id)
         assert status == "BLOCKED"
 
         """
@@ -191,7 +187,7 @@ class RelationshipTest(unittest.TestCase):
             Check the relationship status between User 2 and User 1
         """
 
-        status = Relationship.get_relationship_status(user_2, user_1)
+        status = Relationship.get_relationship_status(user_2.id, user_1.id)
         assert status == "REVERSE_BLOCKED"
 
         """
@@ -216,5 +212,5 @@ class RelationshipTest(unittest.TestCase):
             Check the relationship status between User 2 and User 1
         """
 
-        status = Relationship.get_relationship_status(user_1, user_2)
-        assert status is None # No Relation between user 1 and user 2
+        status = Relationship.get_relationship_status(user_1.id, user_2.id)
+        assert status is None  # No Relation between user 1 and user 2

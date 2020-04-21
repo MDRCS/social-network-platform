@@ -1,6 +1,9 @@
 import time
 from flask import current_app
 import boto3
+import datetime
+import arrow
+import bleach
 
 
 def utc_now_timestamp():
@@ -8,7 +11,17 @@ def utc_now_timestamp():
 
 
 def utc_now_ts_ms():
-    return lambda: int(round(time.time() * 1000))
+    return int(round(time.time() * 1000))
+
+
+def ms_stamp_humanize(ts):
+    ts = datetime.datetime.fromtimestamp(ts / 1000.0)
+    return arrow.get(ts).humanize()
+
+
+def linkify(text):
+    text = bleach.clean(text, tags=[], attributes={}, styles=[], strip=True)
+    return bleach.linkify(text)
 
 
 def email(to_email, subject, body_html, body_text):

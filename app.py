@@ -14,4 +14,7 @@ def create_app(envi_conf='default'):
     from relationship.views import relationship_blueprint
     app.register_blueprint(relationship_blueprint)
 
+    from feed.views import feed_blueprint
+    app.register_blueprint(feed_blueprint)
+
     return app
