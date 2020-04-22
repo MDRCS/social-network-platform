@@ -22,6 +22,13 @@ ADD requirements.txt /opt/social-network/
 RUN pip install -r requirements.txt
 ADD . /opt/social-network
 
+# Fix UTF-8
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
 # start the app server
 ENV FLASK_APP manage.py
 CMD flask run
