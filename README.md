@@ -23,7 +23,7 @@
 
     - 90% Tested Features
     - Mongodb configuration
-    - Dockerization (CentOS)
+    - Dockerization (Red Hat Enterprise Linux)
     - Coverage Report
     - Bash Scripts
     - Flask CLI

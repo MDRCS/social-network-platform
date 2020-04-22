@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 import os
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -14,12 +15,14 @@ class Config:
     HOSTNAME = "0.0.0.0:5000"
     AWS_BUCKET = "social-network-img-upload-aws-s3"
     AWS_CONTENT_URL = "https://s3-us-west-2.amazonaws.com"
+    MONGODB_HOST = 'mongodb'
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
     MONGODB_NAME = os.environ.get('MONGODB_DEV_NAME')
-    AWS_SEND_MAIL= False
+    AWS_SEND_MAIL = False
+
 
 class TestingConfig(Config):
     TESTING = True

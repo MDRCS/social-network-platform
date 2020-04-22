@@ -29,9 +29,29 @@ init:
     chmod -R 755 mongo_restart
     mongod -f mongod.conf
 
+init-3.6.7:
+		brew install pyenv
+		brew upgrade pyenv-virtualenv
+		pyenv versions
+		pyenv install  3.6.7
+		pyenv virtualenvs
+		pyenv global 3.6.7
+		pyenv local 3.6.7
+		source /Users/MDRAHALI/.pyenv/versions/3.6.7/envs/venv-3.6.7/bin/activate
+		export environment=default
+		export FLASK_APP=manage.py
+		flask run
+
 shell:
 	source ./venv/bin/activate
-	python manage.py shell
+	export FLASK_APP=manage.py
+	flask shell
+
+shell-3.6.7:
+		source /Users/MDRAHALI/.pyenv/versions/3.6.7/envs/venv-3.6.7/bin/activate
+		export environment=default
+		export FLASK_APP=manage.py
+		flask shell
 
 test:
 	export environment=testing
@@ -39,11 +59,14 @@ test:
 	python tests.py
 
 coverage:
-	coverage run --omit venv/* tests.py
+	coverage run tests.py
 	coverage report
 
 serve:
+
+	source /Users/MDRAHALI/.pyenv/versions/3.6.7/envs/venv-3.6.7/bin/activate
 	export environment=development
-	python manage.py runserver
+	export FLASK_APP=manage.py
+	flask run
 
 all: init test serve
