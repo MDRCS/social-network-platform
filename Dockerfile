@@ -23,5 +23,5 @@ RUN pip install -r requirements.txt
 ADD . /opt/social-network
 
 # start the app server
-RUN
-CMD python manage.py runserver
+ENV FLASK_APP manage.py
+CMD flask run
