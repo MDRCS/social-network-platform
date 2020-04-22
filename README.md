@@ -84,13 +84,13 @@
 ##### + Launch The App :
     - export environment='testing'
     => echo $environment # check
-
-    -> python manage.py runserver
+    -> export FLASK_APP=manage.py
+    -> flask run
 
 
 ##### + database ops:
     1- source ./venv/bin/activate
-    2- (venv) MACBOOK-ELRAHALI:social-network-platform mdrahali$ python manage.py shell
+    2- (venv) MACBOOK-ELRAHALI:social-network-platform mdrahali$ flask shell
 
 ##### + running tests:
 
